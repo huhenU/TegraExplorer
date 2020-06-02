@@ -19,6 +19,12 @@ typedef struct _dict_str_loc {
     struct _dict_str_loc *next;
 } dict_str_loc;
 
+typedef struct _dict_str_void {
+    char *key;
+    void *value;
+    struct _dict_str_void *next;
+} dict_str_void;
+
 int str_int_add(char *key, int value);
 int str_int_find(char *key, int *out);
 void str_int_clear();

@@ -15,236 +15,127 @@
 #include "variables.h"
 #include "../utils/utils.h"
 
-static dict_str_int *str_int_table = NULL;
-static dict_str_str *str_str_table = NULL;
+static dict_str_void *str_int_table = NULL;
+static dict_str_void *str_str_table = NULL;
 //static dict_str_loc *str_jmp_table = NULL;
 
-int str_int_add(char *key, int value){
+int str_void_add(char *key, void* value, dict_str_void **in){
     char *key_local;
-    dict_str_int *keyvaluepair;
+    dict_str_void *entry, *iter = *in;
 
     utils_copystring(key, &key_local);
-    
-    keyvaluepair = calloc(1, sizeof(dict_str_int));
-    keyvaluepair->key = key_local;
-    keyvaluepair->value = value;
-    keyvaluepair->next = NULL;
+    entry = calloc(1, sizeof(dict_str_void));
 
-    if (str_int_table == NULL){
-        str_int_table = keyvaluepair;
+    entry->key = key_local;
+    entry->value = value;
+    entry->next = NULL;
+    
+    if (iter == NULL){
+        *in = entry;
+        return 0;
     }
     else {
-        dict_str_int *temp;
-        temp = str_int_table;
-        while (temp != NULL){
-            if (!strcmp(temp->key, key_local)){
-                free(keyvaluepair);
+        while (iter != NULL){
+            if (!strcmp(iter->key, key_local)){
+                free(entry);
                 free(key_local);
-                temp->value = value;
+                free(iter->value);
+                iter->value = value;
                 return 0;
             }
 
-            if (temp->next == NULL){
-                temp->next = keyvaluepair;
+            if (iter->next == NULL){
+                iter->next = entry;
                 return 0;
             }
 
-            temp = temp->next;
+            iter = iter->next;
         }
+        return -1;
+    }
+}
+
+int str_void_find(char *key, void **out, dict_str_void *in){
+    while (in != NULL){
+        if (!strcmp(in->key, key)){
+            *out = in->value;
+            return 0;
+        }
+        in = in->next;
     }
 
-    return 0;
+    return -1;
+}
+
+void *str_void_index(int index, dict_str_void *in){
+    dict_str_void *iter = in;
+
+    for (int i = 0; i < index && iter != NULL; i++){
+       iter = iter->next;
+    }
+
+    if (iter == NULL)
+        return NULL;
+
+    return iter->value;
+}
+
+void str_void_clear(dict_str_void **in){
+    dict_str_void *iter = *in, *next;
+
+    while (iter != NULL){
+        next = iter->next;
+        free(iter->key);
+        free(iter->value);
+        free(iter);
+        iter = next;
+    }
+    
+    *in = NULL;
+}
+
+
+int str_int_add(char *key, int value){
+    int *item = malloc(sizeof(int));
+    *item = value;
+
+    return str_void_add(key, item, &str_int_table);
 }
 
 int str_int_find(char *key, int *out){
-    dict_str_int *temp;
-    temp = str_int_table;
-    while (temp != NULL){
-        if (!strcmp(temp->key, key)){
-            *out = temp->value;
-            return 0;
-        }
-        temp = temp->next;
-    }
-
-    return -1;
+   int *item = NULL;
+   int res = str_void_find(key, (void**)&item, str_int_table);
+   *out = *item;
+   return res;
 }
 
 void str_int_clear(){
-    dict_str_int *cur, *next;
-    cur = str_int_table;
-
-    while (cur != NULL){
-        next = cur->next;
-        free(cur->key);
-        free(cur);
-        cur = next;
-    }
-    str_int_table = NULL;
+   str_void_clear(&str_int_table);
 }
 
-void str_int_printall(){
-    dict_str_int *temp;
-    temp = str_int_table;
-    while (temp != NULL){
-        gfx_printf("%s -> %d\n", temp->key, temp->value);
-        temp = temp->next;
-    }
-}
-/*
-int str_jmp_add(char *key, u64 value){
-    char *key_local;
-    dict_str_loc *keyvaluepair;
-
-    //gfx_printf("Adding |%s|\n", key_local);
-
-    utils_copystring(key, &key_local);
-
-    keyvaluepair = calloc(1, sizeof(dict_str_loc));
-    keyvaluepair->key = key_local;
-    keyvaluepair->value = value;
-    keyvaluepair->next = NULL;
-    
-    if (str_jmp_table == NULL){
-        str_jmp_table = keyvaluepair;
-    }
-    else {
-        dict_str_loc *temp;
-        temp = str_jmp_table;
-        while (temp != NULL){
-            if (!strcmp(temp->key, key_local)){
-                free(keyvaluepair);
-                free(key_local);
-
-                temp->value = value;
-                return 0;
-            }
-
-            if (temp->next == NULL){
-                temp->next = keyvaluepair;
-                return 0;
-            }
-
-            temp = temp->next;
-        }
-    }
-
-    return 0;
-}
-
-int str_jmp_find(char *key, u64 *out){
-    dict_str_loc *temp;
-    temp = str_jmp_table;
-    //gfx_printf("Searching |%s|\n", key);
-    while (temp != NULL){
-        if (!strcmp(temp->key, key)){
-            //gfx_printf("Key found!\n", temp->value);
-            *out = temp->value;
-            return 0;
-        }
-        temp = temp->next;
-    }
-
-    //gfx_printf("no key!\n");
-    return -1;
-}
-
-void str_jmp_clear(){
-    dict_str_loc *cur, *next;
-    cur = str_jmp_table;
-
-    while (cur != NULL){
-        next = cur->next;
-        free(cur->key);
-        free(cur);
-        cur = next;
-    }
-    str_jmp_table = NULL;
-}
-*/
 
 int str_str_add(char *key, char *value){
-    char *key_local, *value_local;
-    dict_str_str *keyvaluepair;
-    //gfx_printf("Adding |%s|\n", key_local);
-    utils_copystring(value, &value_local);
-    utils_copystring(key, &key_local);
+    char *value_cpy;
+    utils_copystring(value, &value_cpy);
 
-    keyvaluepair = calloc(1, sizeof(dict_str_str));
-    keyvaluepair->key = key_local;
-    keyvaluepair->value = value_local;
-    keyvaluepair->next = NULL;
-    
-    if (str_str_table == NULL){
-        str_str_table = keyvaluepair;
-    }
-    else {
-        dict_str_str *temp;
-        temp = str_str_table;
-        while (temp != NULL){
-            if (!strcmp(temp->key, key_local)){
-                free(keyvaluepair);
-                free(key_local);
-                
-                free(temp->value);
-                temp->value = value_local;
-                return 0;
-            }
-
-            if (temp->next == NULL){
-                temp->next = keyvaluepair;
-                return 0;
-            }
-
-            temp = temp->next;
-        }
-    }
-
-    return 0;
+    return str_void_add(key, value_cpy, &str_str_table);
 }
 
 int str_str_find(char *key, char **out){
-    dict_str_str *temp;
-    temp = str_str_table;
-
-    while (temp != NULL){
-        if (!strcmp(temp->key, key)){
-            *out = temp->value;
-            return 0;
-        }
-        temp = temp->next;
-    }
-
-    return -1;
+    return str_void_find(key, (void**)out, str_str_table);
 }
 
 int str_str_index(int index, char **out){
-    dict_str_str *temp;
-    temp = str_str_table;
+    char *ret;
+    ret = (char *)str_void_index(index, str_str_table);
 
-    for (int i = 0; i < index; i++){
-        if (temp == NULL)
-            return -1;
-        temp = temp->next;
-    }
-
-    if (temp == NULL)
+    if (ret == NULL)
         return -1;
-
-    *out = temp->value;
+    
+    *out = ret;
     return 0;
 }
 
 void str_str_clear(){
-    dict_str_str *cur, *next;
-    cur = str_str_table;
-
-    while (cur != NULL){
-        next = cur->next;
-        free(cur->key);
-        free(cur->value);
-        free(cur);
-        cur = next;
-    }
-    str_str_table = NULL;
+    str_void_clear(&str_str_table);
 }
