@@ -133,12 +133,17 @@ int dumpfirmware(int mmc, bool daybreak){
     f_mkdir("sd:/tegraexplorer/Firmware");
 
     sdbase = calloc(32 + strlen(pkg1.id), sizeof(char));
-    sprintf(sdbase, "sd:/tegraexplorer/Firmware/%d (%s)", pkg1.ver, pkg1.id);
+    if (daybreak) {
+      sprintf(sdbase, "sd:/tegraexplorer/Firmware/%d (%s) - Daybreak", pkg1.ver, pkg1.id);
+    }
+    else {
+      sprintf(sdbase, "sd:/tegraexplorer/Firmware/%d (%s) - ChoiNX", pkg1.ver, pkg1.id);
+    }
 
     if (fsutil_checkfile(sdbase)){
         SWAPCOLOR(COLOR_RED);
         gfx_printf("Destination folder already exists.\nPress X to delete this folder, any other button to cancel\nPath: %s", sdbase);
-        
+
         Inputs *input = hidWait();
         if (!input->x){
             free(sdbase);
@@ -159,12 +164,12 @@ int dumpfirmware(int mmc, bool daybreak){
 
     gfx_printf("Starting dump...\n");
     SWAPCOLOR(COLOR_GREEN);
-    
+
     printerrors = 0;
 
     while(!f_readdir(&dir, &fno) && fno.fname[0] && !fail){
         utils_copystring(fsutil_getnextloc(sysbase, fno.fname), &syspathtemp);
-    
+
         if (fno.fattrib & AM_DIR){
             utils_copystring(fsutil_getnextloc(syspathtemp, "00"), &syspath);
         }
@@ -179,9 +184,10 @@ int dumpfirmware(int mmc, bool daybreak){
                 continue;
             }
 
+
             char *temp;
             utils_copystring(fsutil_getnextloc(sdbase, fno.fname), &temp);
-            
+
             if (ContentType == 0x01){
                 sdpath = calloc(strlen(temp) + 6, 1);
                 strcpy(sdpath, temp);

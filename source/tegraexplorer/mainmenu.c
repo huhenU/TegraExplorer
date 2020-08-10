@@ -31,14 +31,24 @@ extern bool disableB;
 
 int res = 0, meter = 0;
 
+void MainMenu_Autoboot(){
+  if(gfx_defaultWaitMenu("Autobooting to payload.", 4)){
+    launch_payload("/bootloader/update.bin");
+    }
+}
+
+
+
+void MainMenu_BootCFW(){
+    launch_payload("/bootloader/update.bin");
+}
+
 void MainMenu_SDCard(){
     fileexplorer("SD:/", 0);
 }
 
 void MainMenu_EMMC(){
-    if (gfx_defaultWaitMenu("You're about to enter EMMC\nModifying anything here can result in a BRICK!\n\nPlease only continue if you know what you're doing", 4)){
        makeMmcMenu(SYSMMC);
-    }
 }
 
 void MainMenu_EMUMMC(){
@@ -50,7 +60,7 @@ void MainMenu_MountSD(){
 }
 
 void MainMenu_Tools(){
-    res = menu_make(mainmenu_tools, 4, "-- Tools Menu --");
+    res = menu_make(mainmenu_tools, 5, "-- Tools Menu --");
 
     switch(res){
         case TOOLS_DISPLAY_INFO:
@@ -60,11 +70,30 @@ void MainMenu_Tools(){
             displaygpio();
             break;
         case TOOLS_DUMPFIRMWARE:
-            res = menu_make(fwDump_typeMenu, 4, "-- Fw Type --");
-            if (res >= 2)
-                dumpfirmware(SYSMMC, (res == 2));
+            res = menu_make(fwDump_mmcMenu, 4, "-- Select MMC Type --");
+            if (res == 2) {
+              res = menu_make(fwDump_typeMenu, 4, "-- Fw Type | SysMMC --");
+                if (res == 2) {
+                    dumpfirmware(SYSMMC, (res == 2));
+                }
+                if (res >= 3) {
+                    dumpfirmware(SYSMMC, (res == 0));
+                }
+               break;
+            }
+            if (res >= 3) {
+              res = menu_make(fwDump_typeMenu, 4, "-- Fw Type  | EmuMMC --");
+                if (res == 2) {
+                    dumpfirmware(EMUMMC, (res == 2));
+                }
+                if (res >= 3) {
+                    dumpfirmware(EMUMMC, (res == 0));
+                }
+              break;
+            }
 
             break;
+
     }
 }
 
@@ -72,7 +101,7 @@ void MainMenu_SDFormat(){
     res = menu_make(mainmenu_format, 3, "-- Format Menu --");
 
     if (res > 0){
-        if(gfx_defaultWaitMenu("Are you sure you want to format your sd?\nThis will delete everything on your SD card!\nThis action is irreversible!", 10)){
+        if(gfx_defaultWaitMenu("Are you sure you want to format your sd?\nThis will delete everything on your SD card!\nThis action is irreversible!", 3)){
             if (format(res)){
                 sd_unmount();
             }
@@ -88,7 +117,6 @@ void MainMenu_Credits(){
 
 void MainMenu_Exit(){
     if (sd_mounted){
-        SETBIT(mainmenu_shutdown[4].property, ISHIDE, !fsutil_checkfile("/bootloader/update.bin"));
         SETBIT(mainmenu_shutdown[5].property, ISHIDE, !fsutil_checkfile("/atmosphere/reboot_payload.bin"));
     }
     else {
@@ -96,12 +124,12 @@ void MainMenu_Exit(){
             SETBIT(mainmenu_shutdown[i].property, ISHIDE, 1);
     }
 
-    res = menu_make(mainmenu_shutdown, 6, "-- Shutdown Menu --");
-    
+    res = menu_make(mainmenu_shutdown, 5, "-- Shutdown Menu --");
+
     switch(res){
         case SHUTDOWN_REBOOT_RCM:
             reboot_rcm();
-                    
+
         case SHUTDOWN_REBOOT_NORMAL:
             reboot_normal();
 
@@ -109,15 +137,13 @@ void MainMenu_Exit(){
             power_off();
 
         case SHUTDOWN_HEKATE:
-            launch_payload("/bootloader/update.bin");
-                    
-        case SHUTDOWN_AMS:
             launch_payload("/atmosphere/reboot_payload.bin");
     } //todo declock bpmp
-    
+
 }
 
 func_void_ptr mainmenu_functions[] = {
+    MainMenu_BootCFW,
     MainMenu_SDCard,
     MainMenu_EMMC,
     MainMenu_EMUMMC,
@@ -160,22 +186,25 @@ void te_main(){
     //gfx_printf("Disconnecting EMMC\n");
     disconnect_mmc();
 
+    MainMenu_Autoboot();
+
     //gfx_printf("Entering main menu\n");
     while (1){
         setter = sd_mounted;
 
         if (emu_cfg.enabled){
-            SETBIT(mainmenu_main[2].property, ISHIDE, !setter);
+            SETBIT(mainmenu_main[3].property, ISHIDE, !setter);
         }
 
         SETBIT(mainmenu_main[0].property, ISHIDE, !setter);
-        mainmenu_main[3].name = (menu_sd_states[!setter]);
+        SETBIT(mainmenu_main[1].property, ISHIDE, !setter);
+        mainmenu_main[4].name = (menu_sd_states[!setter]);
 
         setter = sd_inited;
-        SETBIT(mainmenu_main[5].property, ISHIDE, !setter);
+        SETBIT(mainmenu_main[6].property, ISHIDE, !setter);
 
         disableB = true;
-        res = menu_make(mainmenu_main, 8, "-- Main Menu --") + 1;
+        res = menu_make(mainmenu_main, 9, "-- Main Menu --") + 1;
         disableB = false;
 
         RunMenuOption(res);

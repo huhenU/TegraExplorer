@@ -118,3 +118,5 @@ extern menu_entry mmcmenu_start[];
 extern menu_entry mmcmenu_filemenu[];
 
 extern menu_entry fwDump_typeMenu[];
+
+extern menu_entry fwDump_mmcMenu[];

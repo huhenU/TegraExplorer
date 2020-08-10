@@ -49,7 +49,7 @@ u32 gfx_errDisplay(const char *src_func, int err, int loc){
     SWAPCOLOR(COLOR_ORANGE);
     gfx_printf("\nAn error occured:\n\n");
     gfx_printf("Function: %s\nErrcode: %d\n", src_func, err);
-    
+
     if (err < 15)
         gfx_printf("Desc: %s\n", utils_err_codes[err]);
     else if (err >= ERR_SAME_LOC && err <= ERR_IN_FUNC)
@@ -72,17 +72,14 @@ int gfx_makewaitmenu(const char *hiddenmessage, int timer){
     while(1){
         input = hidRead();
 
-        if (input->buttons & (KEY_VOLM | KEY_VOLP | KEY_B))
+        if (input->buttons & (KEY_VOLM | KEY_VOLP | KEY_B | KEY_A))
             return 0;
 
         if (start + timer > get_tmr_s())
             gfx_printf("\r<Wait %d seconds> ", timer + start - get_tmr_s());
 
-        else if (input->a)
+        else
             return 1;
-
-        else 
-            gfx_printf("\r%s", hiddenmessage);
     }
 }
 

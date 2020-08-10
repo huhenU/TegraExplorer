@@ -35,12 +35,12 @@ void _printentry(menu_entry *entry, bool highlighted, bool refresh, const char *
 
     if (entry->property & (ISMENU | ISDIR))
         gfx_printf("\n");
-    else { 
+    else {
         if (entry->isNull){
             u64 totalSize;
             u32 sizeType = 0;
             totalSize = fsutil_getfilesize(fsutil_getnextloc(path, entry->name));
-        
+
             while (totalSize > 1024){
                 totalSize /= 1024;
                 sizeType++;
@@ -59,7 +59,7 @@ void _printentry(menu_entry *entry, bool highlighted, bool refresh, const char *
         gfx_con.fntsz = 8;
         gfx_printf("\n\e%s\n", gfx_file_size_names[entry->size]);
         gfx_con.fntsz = 16;
-    }   
+    }
 }
 
 
@@ -108,10 +108,10 @@ int menu_make(menu_entry *entries, int amount, const char *toptext){
             cursub = -1;
         else
             cursub = 0;
-            
+
         while (entries[currentpos].property & (ISSKIP | ISHIDE))
                 currentpos += cursub;
-        
+
 
         if (currentpos > (minscreen + SCREENMAXOFFSET)){
             offset += currentpos - (minscreen + SCREENMAXOFFSET);
@@ -120,10 +120,10 @@ int menu_make(menu_entry *entries, int amount, const char *toptext){
         }
         else if (currentpos < minscreen){
             offset -= minscreen - currentpos;
-            minscreen -= minscreen - currentpos;  
-            refresh = true;    
+            minscreen -= minscreen - currentpos;
+            refresh = true;
         }
-            
+
 
         if (refresh || currentfolder == NULL || !calculatedamount){
             for (int i = 0 + offset; i < amount && i < SCREENMAXOFFSET + 1 + offset; i++)
@@ -151,7 +151,14 @@ int menu_make(menu_entry *entries, int amount, const char *toptext){
             SWAPCOLOR(COLOR_YELLOW);
             gfx_sideprintandclear(entries[currentpos].name, 28);
             RESETCOLOR;
-            gfx_sideprintf("Type: %s", (entries[currentpos].isDir) ? "Dir " : "File");
+            gfx_sideprintf("Type: %s\n", (entries[currentpos].isDir) ? "Dir " : "File");
+            SWAPCOLOR(COLOR_BLUE);
+            if (!(entries[currentpos].isDir)){
+              gfx_sideprintf("Size: %d%s      ", entries[currentpos].storage, gfx_file_size_names[entries[currentpos].size]);
+              }
+              else{
+                gfx_sideprintf("            ");
+              }
             gfx_sideSetY(sideY);
         }
         else
@@ -163,9 +170,7 @@ int menu_make(menu_entry *entries, int amount, const char *toptext){
 
         if (refresh)
             gfx_drawScrollBar(minscreen, minscreen + SCREENMAXOFFSET, amount);
-
         refresh = false;
-
 
         while (hidRead()->buttons & (KEY_B | KEY_A));
 
@@ -183,7 +188,7 @@ int menu_make(menu_entry *entries, int amount, const char *toptext){
                 delay = 300;
                 continue;
             }
-            
+
             if (input->buttons & (KEY_RDOWN | KEY_RUP)){
                 delay = 1;
                 input->Lup = input->Rup;
@@ -203,7 +208,7 @@ int menu_make(menu_entry *entries, int amount, const char *toptext){
 
         if (input->a){
             break;
-        }   
+        }
         if (input->b && !disableB){
             currentpos = 0;
             break;

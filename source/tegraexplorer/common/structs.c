@@ -2,6 +2,7 @@
 #include "types.h"
 
 menu_entry mainmenu_main[] = {
+    {"Launch Hekate", COLOR_BLUE, {ISMENU}},
     {"[SD:/] SD CARD", COLOR_GREEN, {ISMENU}},
     {"[EMMC:/] EMMC", COLOR_ORANGE, {ISMENU}},
     {"[EMMC:/] EMUMMC", COLOR_BLUE, {ISMENU}},
@@ -17,7 +18,6 @@ menu_entry mainmenu_shutdown[] = {
     {"\nReboot to RCM", COLOR_VIOLET, {ISMENU}},
     {"Reboot normally", COLOR_ORANGE, {ISMENU}},
     {"Power off\n", COLOR_BLUE, {ISMENU}},
-    {"Reboot to Hekate", COLOR_GREEN, {ISMENU}},
     {"Reboot to Atmosphere", COLOR_GREEN, {ISMENU}}
 };
 
@@ -94,9 +94,16 @@ menu_entry mmcmenu_filemenu[] = {
     {"Dump to SD", COLOR_YELLOW, {ISMENU}}
 };
 
+menu_entry fwDump_mmcMenu[] = {
+  {"Back\n", COLOR_WHITE, {ISMENU}},
+  {"Dump firmware from:", COLOR_WHITE, {ISMENU | ISSKIP}},
+  {"SysMMC", COLOR_BLUE, {ISMENU}},
+  {"EmuMMC", COLOR_BLUE, {ISMENU}}
+};
+
 menu_entry fwDump_typeMenu[] = {
 	{"Back\n", COLOR_WHITE, {ISMENU}},
 	{"Firmware format type:", COLOR_WHITE, {ISMENU | ISSKIP}},
 	{"Daybreak (prod.keys required!)", COLOR_BLUE, {ISMENU}},
-	{"ChoiNX", COLOR_VIOLET, {ISMENU}}
+	{"ChoiNX", COLOR_BLUE, {ISMENU}}
 };
