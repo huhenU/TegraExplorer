@@ -7,6 +7,8 @@
 
 A payload-based file explorer for your switch!
 
+huhen's note: Yes, the code I added is bad, I know nothing about C and I'll worry about good code when I have to.
+
 ## Usage
 1. Get your favorite payload injector
 2. Inject TegraExplorer as a payload
