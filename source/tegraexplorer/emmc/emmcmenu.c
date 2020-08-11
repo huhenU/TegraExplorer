@@ -111,7 +111,7 @@ int handleEntries(short mmcType, menu_entry part){
 
         mu_copySingle(part.name, mmcmenu_filemenu[1].storage, mmcmenu_filemenu[1].property, &mmcmenu_filemenu[1]);
 
-        if ((menu_make(mmcmenu_filemenu, 5, "-- RAW PARTITION --")) < 3)
+        if ((menu_make(mmcmenu_filemenu, 4, "-- RAW PARTITION --")) < 3)
             return 0;
 
         f_mkdir("sd:/tegraexplorer");
