@@ -74,16 +74,11 @@ int fillMmcMenu(short mmcType){
 
     mu_createObjects(count, &mmcMenuEntries);
 
-    if (!sd_mounted) {
-      SETBIT(mmcmenu_start[1].property, ISHIDE, 1);
-      SETBIT(mmcmenu_filemenu[3].property, ISHIDE, 1);
-      SETBIT(mmcmenu_filemenu[4].property, ISHIDE, 0);
-    }
-    else {
-      SETBIT(mmcmenu_start[1].property, ISHIDE, 0);
-      SETBIT(mmcmenu_filemenu[3].property, ISHIDE, 0);
-      SETBIT(mmcmenu_filemenu[4].property, ISHIDE, 1);
-    }
+    if (!sd_mounted)
+      sd_mount();
+
+    SETBIT(mmcmenu_filemenu[3].property, ISHIDE, !sd_mounted);
+    SETBIT(mmcmenu_start[1].property, ISHIDE, !sd_mounted);
 
     for (i = 0; i < 4; i++)
         mu_copySingle(mmcmenu_start[i].name, mmcmenu_start[i].storage, mmcmenu_start[i].property, &mmcMenuEntries[i]);
