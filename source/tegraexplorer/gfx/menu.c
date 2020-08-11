@@ -151,18 +151,23 @@ int menu_make(menu_entry *entries, int amount, const char *toptext){
             SWAPCOLOR(COLOR_YELLOW);
             gfx_sideprintandclear(entries[currentpos].name, 28);
             RESETCOLOR;
-            gfx_sideprintf("Type: %s\n", (entries[currentpos].isDir) ? "Dir " : "File");
-            SWAPCOLOR(COLOR_BLUE);
-            if (!(entries[currentpos].isDir)){
-              gfx_sideprintf("Size: %d%s      ", entries[currentpos].storage, gfx_file_size_names[entries[currentpos].size]);
-              }
-              else{
-                gfx_sideprintf("            ");
-              }
+            gfx_sideprintf("Type: %s", (entries[currentpos].isDir) ? "Dir " : "File");
+            if (!(entries[currentpos].isDir)) {
+              gfx_printf("%b", 800);
+              SWAPCOLOR(COLOR_BLUE);
+              gfx_printf("\nSize: %d%s", entries[currentpos].storage, gfx_file_size_names[entries[currentpos].size]);
+              u32 x, y;
+              gfx_con_getpos(&x, &y);
+              gfx_boxGrey(x, y, x + 50, y + 15, 0x1B);
+              gfx_printf("%b", 0);
+            }
+            else {
+              gfx_boxGrey(800, sideY + 50, 1279, sideY + 70, 0x1B);
+            }
             gfx_sideSetY(sideY);
         }
         else
-            gfx_boxGrey(800, sideY, 1279, sideY + 48, 0x1B);
+            gfx_boxGrey(800, sideY, 1279, sideY + 48, 0x1B); 
 
         gfx_con_setpos(0, 703);
         SWAPALLCOLOR(COLOR_DEFAULT, COLOR_WHITE);

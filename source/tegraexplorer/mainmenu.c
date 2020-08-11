@@ -60,7 +60,7 @@ void MainMenu_MountSD(){
 }
 
 void MainMenu_Tools(){
-    res = menu_make(mainmenu_tools, 5, "-- Tools Menu --");
+    res = menu_make(mainmenu_tools, 4, "-- Tools Menu --");
 
     switch(res){
         case TOOLS_DISPLAY_INFO:
